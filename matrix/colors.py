@@ -496,6 +496,7 @@ class MatrixHtmlParser(HTMLParser):
         self.text = ""  # type: str
         self.substrings = []  # type: List[FormattedString]
         self.attributes = DEFAULT_ATTRIBUTES.copy()
+        self.list_level = 0
 
     def unescape(self, text):
         """Shim to unescape HTML in both Python 2 and 3.
@@ -531,6 +532,31 @@ class MatrixHtmlParser(HTMLParser):
             self._toggle_attribute("quote")
         elif tag == "pre":
             self._toggle_attribute("preformatted")
+        elif tag == "li":
+            self.list_level = self.list_level + 1
+
+            #
+            # Dump out any text that's already in there, and ensure we are on a
+            # new line:
+            #
+            if self.text:
+                self.add_substring(self.text, self.attributes.copy())
+
+            #
+            # Render a bullet with an indent based on the current list level:
+            #
+            self.text = "  " * self.list_level
+            if self.list_level == 1:
+                self.text = self.text + "◦"
+            elif self.list_level == 2:
+                self.text = self.text + "•"
+            else:
+                self.text = self.text + "⁃"
+            self.text = self.text + " "
+
+            self.add_substring(self.text, DEFAULT_ATTRIBUTES.copy())
+            self.text = ""
+
         elif tag == "code":
             lang = None
 
@@ -594,6 +620,9 @@ class MatrixHtmlParser(HTMLParser):
             self._toggle_attribute("strikethrough")
         elif tag == "pre":
             self._toggle_attribute("preformatted")
+        elif tag == "li":
+            if self.list_level > 0:
+                self.list_level = self.list_level - 1
         elif tag == "code":
             if self.text:
                 self.add_substring(self.text, self.attributes.copy())
