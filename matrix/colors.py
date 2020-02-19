@@ -101,6 +101,14 @@ class Formatted(object):
                 attributes["bold"] = not attributes["bold"]
                 i = i + 1
 
+            # If the line starts with ">", make it a quoted line:
+            elif i == 0 and line[i] == ">" and not attributes["code"]:
+                if text:
+                    substrings.append(FormattedString(text, attributes.copy()))
+                text = ""
+                attributes["quote"] = not attributes["quote"]
+                i = i + 1
+
             # Markdown inline code
             elif line[i] == "`":
                 if text:
