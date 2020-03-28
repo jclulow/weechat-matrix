@@ -1181,6 +1181,11 @@ class RoomBuffer(object):
             # Use placeholder room name
             room_name = 'Empty room (?)'
 
+        #
+        # XXX Make buffer names look more like IRC: lower case, no spaces.
+        #
+        room_name = room_name.lower().replace(" ", "-")
+
         self.weechat_buffer.short_name = room_name
 
         if G.CONFIG.human_buffer_names:
