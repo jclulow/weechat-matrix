@@ -291,7 +291,12 @@ class Formatted(object):
             )
 
         def format_string(formatted_string):
-            text = formatted_string.text
+            #
+            # Make sure we escape any HTML that appears in the message or,
+            # e.g., "<" and ">", will confuse renderers with a more complete
+            # understanding of HTML; e.g., Riot.
+            #
+            text = html.escape(formatted_string.text)
             attributes = formatted_string.attributes.copy()
 
             if attributes["code"]:
