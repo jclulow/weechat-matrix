@@ -43,6 +43,7 @@ from nio import (
     RoomMessageUnknown,
     RoomNameEvent,
     RoomTopicEvent,
+    RoomTombstoneEvent,
     MegolmEvent,
     Event,
     OlmTrustError,
@@ -1263,6 +1264,12 @@ class RoomBuffer(object):
 
         return tags
 
+    def _handle_tombstone(self, event):
+        self.weechat_buffer.info("TOMBSTONE: new room {}: {}".format(
+            event.replacement_room,
+            event.body
+        ))
+
     def _handle_power_level(self, _):
         for user_id in self.room.power_levels.users:
             if user_id in self.displayed_nicks:
@@ -1287,6 +1294,8 @@ class RoomBuffer(object):
             self._handle_power_level(event)
         elif isinstance(event, (RoomNameEvent, RoomAliasEvent)):
             self.update_buffer_name()
+        elif isinstance(event, RoomTombstoneEvent):
+            self._handle_tombstone(event)
         elif isinstance(event, RoomEncryptionEvent):
             pass
 
