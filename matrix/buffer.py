@@ -874,6 +874,18 @@ class WeechatChannelBuffer(object):
     def number(self, n):
         W.buffer_set(self._ptr, "number", str(n))
 
+    @property
+    def hidden(self):
+        """Is the buffer hidden?"""
+        return bool(W.buffer_get_integer(self._ptr, "hidden") == 1)
+
+    @hidden.setter
+    def hidden(self, hide):
+        if hide == True:
+            W.buffer_set(self._ptr, "hidden", "1")
+        else:
+            W.buffer_set(self._ptr, "hidden", "0")
+
     def find_lines(self, predicate, max_lines=None):
         lines = []
         count = 0
@@ -1265,6 +1277,8 @@ class RoomBuffer(object):
         return tags
 
     def _handle_tombstone(self, event):
+        self.weechat_buffer.hidden = True # XXX
+        self.weechat_buffer.number = 1000
         self.weechat_buffer.info("TOMBSTONE: new room {}: {}".format(
             event.replacement_room,
             event.body
@@ -1501,29 +1515,37 @@ class RoomBuffer(object):
             self.handle_membership_events(event, False)
 
         elif isinstance(event, (RoomNameEvent, RoomAliasEvent)):
+            self.weechat_buffer.hidden = False # XXX
             self.update_buffer_name()
 
         elif isinstance(event, RoomTopicEvent):
+            self.weechat_buffer.hidden = False # XXX
             self._handle_topic(event, False)
 
         # Emotes are a subclass of RoomMessageText, so put them before the text
         # ones
         elif isinstance(event, RoomMessageEmote):
+            self.weechat_buffer.hidden = False # XXX
             self.print_room_emote(event, extra_tags)
 
         elif isinstance(event, RoomMessageText):
+            self.weechat_buffer.hidden = False # XXX
             self.print_room_message(event, extra_tags)
 
         elif isinstance(event, RoomMessageNotice):
+            self.weechat_buffer.hidden = False # XXX
             self.print_room_notice(event, extra_tags)
 
         elif isinstance(event, RoomMessageMedia):
+            self.weechat_buffer.hidden = False # XXX
             self.print_room_media(event, extra_tags)
 
         elif isinstance(event, RoomEncryptedMedia):
+            self.weechat_buffer.hidden = False # XXX
             self.print_room_media(event, extra_tags)
 
         elif isinstance(event, RoomMessageUnknown):
+            self.weechat_buffer.hidden = False # XXX
             self.print_unknown(event, extra_tags)
 
         elif isinstance(event, RedactionEvent):
