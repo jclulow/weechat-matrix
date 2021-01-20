@@ -1081,6 +1081,7 @@ class RoomBuffer(object):
         # freenode bridge users better
         if (user.user_id.startswith("@_discord_") or
                 user.user_id.startswith("@_slack_") or
+                user.user_id.startswith("@slack_") or
                 user.user_id.startswith("@whatsapp_") or
                 user.user_id.startswith("@facebook_") or
                 user.user_id.startswith("@telegram_") or
